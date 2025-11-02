@@ -1,0 +1,26 @@
+script:
+  dataset_name: HuggingFaceH4/ultrafeedback_binarized
+  dataset_train_split: train_sft
+  dataset_test_split: test_sft
+  dataset_streaming: true
+
+training:
+  learning_rate: 2.0e-5
+  num_train_epochs: 1
+  packing: null
+  max_length: 4096
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 8
+  gradient_checkpointing: false
+  bf16: true
+  logging_steps: 5
+  eval_strategy: steps
+  eval_steps: 100
+  output_dir: data/2.5-Mistral-7B-SFT
+  report_to:
+    - wandb
+  run_name: sft
+
+model:
+  model_name_or_path: teknium/OpenHermes-2.5-Mistral-7B
+  dtype: bfloat16

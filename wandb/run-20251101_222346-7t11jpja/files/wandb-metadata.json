@@ -1,0 +1,37 @@
+{
+  "os": "macOS-26.0.1-arm64-arm-64bit",
+  "python": "CPython 3.12.12",
+  "startedAt": "2025-11-02T02:23:46.102266Z",
+  "program": "/Users/jenbenarye/Desktop/Projects/adversarial-rlhf/scripts/sft.py",
+  "codePath": "scripts/sft.py",
+  "codePathLocal": "scripts/sft.py",
+  "git": {
+    "remote": "https://github.com/jenbenarye/adversarial-rlhf.git",
+    "commit": "4030d0faeaadbec3b597263b3f9523436981df9c"
+  },
+  "email": "jennybenarye@gmail.com",
+  "root": "/Users/jenbenarye/Desktop/Projects/adversarial-rlhf",
+  "host": "dhcp-10-31-186-26.dyn.MIT.EDU",
+  "executable": "/opt/anaconda3/envs/arena/bin/python",
+  "cpu_count": 8,
+  "cpu_count_logical": 8,
+  "disk": {
+    "/": {
+      "total": "994662584320",
+      "used": "501200867328"
+    }
+  },
+  "memory": {
+    "total": "25769803776"
+  },
+  "apple": {
+    "name": "Apple M2",
+    "ecpuCores": 4,
+    "pcpuCores": 4,
+    "gpuCores": 10,
+    "memoryGb": 24,
+    "swapTotalBytes": "4294967296",
+    "ramTotalBytes": "25769803776"
+  },
+  "writerId": "ggza0sdw22ry3n19n6286jdxqo3srjzr"
+}
