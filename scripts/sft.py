@@ -15,16 +15,18 @@ import wandb
 logger = logging.getLogger(__name__)
 
 def main(script_args, training_args, model_args):
-    set_seed(training_args.seed)
-
     ###################
     # Config
     ###################
-    with open("config/sft.yaml") as f:
+    config_path = os.getenv("CONFIG_PATH", "config/sft.yaml")
+    with open(config_path) as f:
         cfg = yaml.safe_load(f)
     script_args = ScriptArguments(**cfg["script"])
     training_args = SFTConfig(**cfg["training"])
     model_args = ModelConfig(**cfg["model"])
+
+
+    set_seed(training_args.seed)
 
 
     ###################
@@ -44,10 +46,15 @@ def main(script_args, training_args, model_args):
     ###################
     # Wandb
     ###################
+    wandb_entity = os.getenv("WANDB_ENTITY", "jenbenarye_")
+    wandb_project = os.getenv("WANDB_PROJECT", "adversarial-rlhf")
+
     run = wandb.init(
-        entity="jenbenarye_",
-        project="adversarial-rlhf",
-        config={**cfg}
+        entity=wandb_entity,
+        project=wandb_project,
+        config={**cfg},
+        name=training_args.run_name,
+        tags=["sft"]
     )
     ###################
     # Checkpoints
@@ -78,9 +85,12 @@ def main(script_args, training_args, model_args):
     logger.info("*** Tokenizer loaded succesfully ***")
 
     logger.info("*** Loading model ***")
+    # Convert dtype string to torch dtype
+    dtype_str = cfg["model"].get("dtype", "float32")
+    dtype = getattr(torch, dtype_str)
     model = AutoModelForCausalLM.from_pretrained(
         model_args.model_name_or_path,
-        dtype=getattr(torch, cfg["model"]["dtype"])
+        dtype=dtype
         )
     logger.info("*** Model loaded succesfully ***")
 
@@ -150,7 +160,7 @@ def main(script_args, training_args, model_args):
         logger.info("Pushing to hub...")
         trainer.push_to_hub(**kwargs)
 
-    run.finish() # find wandb run
+    run.finish()  # finish wandb run
 
 
 if __name__ == "__main__":
