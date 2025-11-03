@@ -2,7 +2,7 @@ script:
   dataset_name: HuggingFaceH4/ultrafeedback_binarized
   dataset_train_split: train_sft
   dataset_test_split: test_sft
-  dataset_streaming: true
+  dataset_streaming: false
 
 training:
   learning_rate: 2.0e-5
