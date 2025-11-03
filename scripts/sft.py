@@ -7,7 +7,7 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, set_seed
 from transformers.trainer_utils import get_last_checkpoint
 from data.data_loader import get_dataset
-from trl import SFTTrainer, TrlParser, get_peft_config, ScriptArguments, ModelConfig, SFTConfig
+from trl import SFTTrainer, TrlParser, ScriptArguments, ModelConfig, SFTConfig, get_peft_config
 import wandb
 
 
@@ -21,6 +21,7 @@ def main(script_args, training_args, model_args):
     config_path = os.getenv("CONFIG_PATH", "config/sft.yaml")
     with open(config_path) as f:
         cfg = yaml.safe_load(f)
+
     script_args = ScriptArguments(**cfg["script"])
     training_args = SFTConfig(**cfg["training"])
     model_args = ModelConfig(**cfg["model"])

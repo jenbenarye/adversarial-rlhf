@@ -8,10 +8,10 @@ training:
   learning_rate: 2.0e-5
   num_train_epochs: 1
   packing: null
-  max_length: 4096
-  per_device_train_batch_size: 2
-  gradient_accumulation_steps: 8
-  gradient_checkpointing: false
+  max_length: 1024
+  per_device_train_batch_size: 1 # reduce to save memory
+  gradient_accumulation_steps: 16 # effective batch size = 1*16
+  gradient_checkpointing: true # trade compute with memory (save ~50% memory)
   bf16: true
   logging_steps: 5
   eval_strategy: steps
@@ -26,3 +26,7 @@ training:
 model:
   model_name_or_path: teknium/OpenHermes-2.5-Mistral-7B
   dtype: bfloat16
+  use_peft: true
+  lora_r: 64
+  lora_alpha: 16
+  lora_target_modules: all-linear
