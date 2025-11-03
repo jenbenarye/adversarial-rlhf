@@ -211,7 +211,4 @@ __marimo__/
 wandb/
 
 # RUNPOD NOTES
-RUNPOD_SETUP.md
-RESTORE_ENV.md
-setup_venv.sh
-.bashrc.backup
+setup/
