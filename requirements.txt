@@ -14,3 +14,4 @@ safetensors
 huggingface-hub
 tokenizers
 sentencepiece
+hf_transfer==0.1.9

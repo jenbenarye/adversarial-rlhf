@@ -2,6 +2,7 @@ import logging
 import sys
 import os
 import yaml
+from pathlib import Path
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, set_seed
@@ -18,7 +19,9 @@ def main(script_args, training_args, model_args):
     ###################
     # Config
     ###################
-    config_path = os.getenv("CONFIG_PATH", "config/sft.yaml")
+    repo_root = Path(__file__).resolve().parents[1]
+    default = repo_root / "config" / "sft.yaml"
+    config_path = Path(os.getenv("CONFIG_PATH", default))
     with open(config_path) as f:
         cfg = yaml.safe_load(f)
 
