@@ -2,6 +2,7 @@ import logging
 import sys
 import os
 from pathlib import Path
+import datetime
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, set_seed
@@ -35,6 +36,12 @@ def main(script_args, training_args, model_args):
     ###################
 
     set_seed(training_args.seed)
+
+    # Generate run name if not set
+    if training_args.run_name is None:
+        timestamp = datetime.now().strftime("%Y%m%d-%H%M")
+        model_short = model_args.model_name_or_path.split("/")[-1]
+        training_args.run_name = f"sft-{model_short}-{timestamp}"
 
     # setup dirs
     base_dir = Path(os.getenv("RUNS_DIR", "./runs"))

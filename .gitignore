@@ -212,3 +212,6 @@ wandb/
 
 # runpod setup
 setup/
+
+# training logs
+runs/

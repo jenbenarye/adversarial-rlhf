@@ -41,7 +41,7 @@ training:
 
   # Wandb
   report_to: wandb
-  run_name: sft-${model.model_name_or_path}-{now:%Y%m%d-%H%M}
+  run_name: null # set in code
 
   # Hub
   push_to_hub: true
