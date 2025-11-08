@@ -24,6 +24,7 @@ def setup_directories(run_name: str, base_dir: Path) -> dict:
         "checkpoints": run_dir / "checkpoints",
         "final": run_dir / "final",
         "logs": run_dir / "logs",
+        "configs": run_dir / "configs",
     }
     for d in dirs.values():
         d.mkdir(parents=True, exist_ok=True)
@@ -81,6 +82,19 @@ def main():
     logger.info(f"Dataset: {script_args.dataset_name}")
     logger.info(f"Run directory: {dirs['run']}")
 
+    # Log which config file is actually used
+    logger.info(f"CONFIG_PATH env: {os.getenv('CONFIG_PATH')}")
+    logger.info(f"Loading config from: {config_path.resolve()}")
+
+    # Persist the raw YAML + resolved args
+    with open(dirs["configs"] / "resolved_config.yaml", "w") as f:
+        yaml.safe_dump(cfg, f, sort_keys=False)
+    with open(dirs["configs"] / "script_args.yaml", "w") as f:
+        yaml.safe_dump(script_args.__dict__, f, sort_keys=False)
+    with open(dirs["configs"] / "training_args.yaml", "w") as f:
+        yaml.safe_dump(training_args.to_dict(), f, sort_keys=False)
+    with open(dirs["configs"] / "model_args.yaml", "w") as f:
+        yaml.safe_dump(model_args.__dict__, f, sort_keys=False)
 
     ###################
     # Wandb
