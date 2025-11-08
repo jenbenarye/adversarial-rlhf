@@ -3,6 +3,16 @@ script:
   dataset_train_split: train_sft
   dataset_test_split: test_sft
   dataset_streaming: false
+  output_subdir: ${RUNS_DIR}/${training.run_name}/final
+
+model:
+  model_name_or_path: teknium/OpenHermes-2.5-Mistral-7B
+  dtype: bfloat16
+  use_peft: true
+  lora_r: 64
+  lora_alpha: 16
+  lora_target_modules: all-linear
+
 
 training:
   learning_rate: 2.0e-5
@@ -18,15 +28,12 @@ training:
   eval_steps: 100
   do_eval: true
   seed: 42
-  output_dir: data/2.5-Mistral-7B-SFT
   report_to:
     - wandb
-  run_name: sft
-
-model:
-  model_name_or_path: teknium/OpenHermes-2.5-Mistral-7B
-  dtype: bfloat16
-  use_peft: true
-  lora_r: 64
-  lora_alpha: 16
-  lora_target_modules: all-linear
+  run_name: sft-${model.model_name_or_path}-{now:%Y%m%d-%H%M}
+  output_dir: ${RUNS_DIR}/${training.run_name}/checkpoints
+  logging_dir: ${RUNS_DIR}/${training.run_name}/logs
+  hub_model_id:
+  push_to_hub: true
+  hub_strategy: end
+  load_best_model_at_end: true

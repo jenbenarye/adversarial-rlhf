@@ -3,15 +3,6 @@ import logging
 import os
 
 logger = logging.getLogger(__name__)
-os.makedirs("logs", exist_ok=True)
-
-root = logging.getLogger()
-if not any(isinstance(h, logging.FileHandler) and h.baseFilename.endswith("data_loader.log") for h in root.handlers):
-    root.addHandler(logging.FileHandler("logs/data_loader.log"))
-
-
-file_handler = logging.FileHandler("logs/data_loader.log")
-logging.getLogger().addHandler(file_handler)
 
 def get_dataset(script_args) -> DatasetDict:
     dataset, train_split, test_split = script_args.dataset_name, script_args.dataset_train_split, script_args.dataset_test_split
