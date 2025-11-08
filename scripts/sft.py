@@ -2,7 +2,8 @@ import logging
 import sys
 import os
 from pathlib import Path
-import datetime
+from datetime import datetime
+import yaml
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, set_seed
@@ -29,13 +30,28 @@ def setup_directories(run_name: str, base_dir: Path) -> dict:
     return dirs
 
 
-def main(script_args, training_args, model_args):
+def main():
+    ###################
+    # Config
+    ###################
+
+    repo_root = Path(__file__).resolve().parents[1]
+    default_config = repo_root / "config" / "sft.yaml"
+    config_path = Path(os.getenv("CONFIG_PATH", default_config))
+
+    with open(config_path) as f:
+        cfg = yaml.safe_load(f)
+
+    script_args = ScriptArguments(**cfg["script"])
+    training_args = SFTConfig(**cfg["training"])
+    model_args = ModelConfig(**cfg["model"])
+    data_args = cfg["data"]
+
+    set_seed(training_args.seed)
 
     ###################
     # Logs
     ###################
-
-    set_seed(training_args.seed)
 
     # Generate run name if not set
     if training_args.run_name is None:
@@ -77,11 +93,7 @@ def main(script_args, training_args, model_args):
         project=os.getenv("WANDB_PROJECT", "adversarial-rlhf"),
         name=training_args.run_name,
         tags=["sft"],
-        config={
-            "script": script_args.to_dict(),
-            "training": training_args.to_dict(),
-            "model": model_args.to_dict(),
-        },
+        config={**cfg},
     )
 
 
@@ -101,7 +113,7 @@ def main(script_args, training_args, model_args):
     ###################
 
     logger.info("Loading dataset...")
-    dataset = get_dataset(script_args)
+    dataset = get_dataset(script_args, data_args)
     logger.info("Dataset loaded succesfully.")
 
 
@@ -116,7 +128,8 @@ def main(script_args, training_args, model_args):
     logger.info("Tokenizer loaded succesfully")
 
     logger.info("Loading model...")
-    dtype = getattr(torch, model_args.torch_dtype) if hasattr(model_args, "torch_dtype") else torch.bfloat16
+    dtype_str = cfg["model"].get("dtype", "float32")
+    dtype = getattr(torch, dtype_str)
     model = AutoModelForCausalLM.from_pretrained(
         model_args.model_name_or_path,
         dtype=dtype
@@ -189,11 +202,9 @@ def main(script_args, training_args, model_args):
         logger.info(f"Pushing to hub: {training_args.hub_model_id}")
         trainer.push_to_hub()
 
-    wandb.finish()
+    run.finish()
     logger.info("Training complete!")
 
 
 if __name__ == "__main__":
-    parser = TrlParser((ScriptArguments, SFTConfig, ModelConfig))
-    script_args, training_args, model_args = parser.parse_args_and_config()
-    main(script_args, training_args, model_args)
+    main()

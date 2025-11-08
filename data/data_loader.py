@@ -1,12 +1,18 @@
 from datasets import load_dataset, DatasetDict
 
-def get_dataset(script_args) -> DatasetDict:
+def get_dataset(script_args, data_args, max_samples=None) -> DatasetDict:
     """Load and prepare dataset for SFT training."""
 
     ds = load_dataset(
         script_args.dataset_name,
         streaming=script_args.dataset_streaming
     )
+
+    # For testing: limit dataset size
+
+    max_samples = getattr(data_args, 'max_samples', None)
+    if max_samples is not None:
+        ds = ds.select(range(min(max_samples, len(ds))))
 
     # Validate splits exist
     if script_args.dataset_train_split not in ds:

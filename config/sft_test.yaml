@@ -8,7 +8,7 @@ model:
   model_name_or_path: teknium/OpenHermes-2.5-Mistral-7B
   dtype: bfloat16
   use_peft: true
-  lora_r: 64
+  lora_r: 8  # Reduced from 64
   lora_alpha: 16
   lora_target_modules: all-linear
 
@@ -19,22 +19,24 @@ training:
   num_train_epochs: 1
   bf16: true
   seed: 42
+  max_steps: 10  # LIMIT TRAINING TO 10 STEPS
+
 
   # Memory optimization
   per_device_train_batch_size: 1 # reduce to save memory
-  gradient_accumulation_steps: 16 # effective batch size = 1*16
+  gradient_accumulation_steps: 2  # Reduced from 16
   gradient_checkpointing: true # trade compute with memory (save ~50% memory)
 
   # Data processing
   packing: false
-  max_length: 1024
+  max_length: 512  # Reduced from 1024
 
   # Logging & Evaluation
-  logging_steps: 5
+  logging_steps: 2  # Log frequently
   eval_strategy: steps
-  eval_steps: 100
+  eval_steps: 5  # Eval after 5 steps
   save_strategy: steps
-  save_steps: 100
+  save_steps: 5  # Save after 5 steps
   do_eval: true
   load_best_model_at_end: true
   metric_for_best_model: eval_loss
@@ -49,4 +51,4 @@ training:
   hub_strategy: end
 
 data:
-  max_samples: null
+  max_samples: 50
