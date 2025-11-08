@@ -33,7 +33,7 @@ training:
   run_name: sft-${model.model_name_or_path}-{now:%Y%m%d-%H%M}
   output_dir: ${RUNS_DIR}/${training.run_name}/checkpoints
   logging_dir: ${RUNS_DIR}/${training.run_name}/logs
-  hub_model_id:
+  hub_model_id: Jenbenarye/mistral-7b-sft
   push_to_hub: true
   hub_strategy: end
   load_best_model_at_end: true
