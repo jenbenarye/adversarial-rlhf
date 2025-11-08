@@ -1,34 +1,45 @@
 from datasets import load_dataset, DatasetDict
-import logging
-import os
-
-logger = logging.getLogger(__name__)
 
 def get_dataset(script_args) -> DatasetDict:
-    dataset, train_split, test_split = script_args.dataset_name, script_args.dataset_train_split, script_args.dataset_test_split
-    logger.info("*** loading dataset ***")
-    ds = load_dataset(dataset, streaming=script_args.dataset_streaming)
-    logger.info("*** loading dataset completed ***")
+    """Load and prepare dataset for SFT training."""
 
-    if train_split not in ds or test_split not in ds:
-        raise ValueError("train or test splits not valid")
-    train = ds[train_split]
-    test = ds[test_split]
+    ds = load_dataset(
+        script_args.dataset_name,
+        streaming=script_args.dataset_streaming
+    )
 
+    # Validate splits exist
+    if script_args.dataset_train_split not in ds:
+        raise ValueError(f"Train split '{script_args.dataset_train_split}' not found in dataset")
+    if script_args.dataset_test_split not in ds:
+        raise ValueError(f"Test split '{script_args.dataset_test_split}' not found in dataset")
+
+    train = ds[script_args.dataset_train_split]
+    test = ds[script_args.dataset_test_split]
+
+    # Keep only messages column for chat format
     def _clean_split(split_ds):
-        # keep only the chat messages column so TRL treats rows as conversational
         keep_columns = {"messages"}
-        columns = getattr(split_ds, "column_names", None)
-        if columns is None and hasattr(split_ds, "features"):
+
+        # Get column names
+        if hasattr(split_ds, "column_names"):
+            columns = split_ds.column_names
+        elif hasattr(split_ds, "features"):
             columns = list(split_ds.features.keys())
-        if not columns:
+        else:
             return split_ds
-        drop = [col for col in columns if col not in keep_columns]
-        if drop:
-            split_ds = split_ds.remove_columns(drop)
+
+        # Remove unnecessary columns
+        drop_columns = [col for col in columns if col not in keep_columns]
+        if drop_columns:
+            split_ds = split_ds.remove_columns(drop_columns)
+
         return split_ds
 
     train = _clean_split(train)
     test = _clean_split(test)
 
-    return DatasetDict({f"{script_args.dataset_train_split}": train, f"{script_args.dataset_test_split}": test})
+    return DatasetDict({
+        script_args.dataset_train_split: train,
+        script_args.dataset_test_split: test,
+    })

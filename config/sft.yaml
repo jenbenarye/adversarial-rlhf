@@ -3,7 +3,6 @@ script:
   dataset_train_split: train_sft
   dataset_test_split: test_sft
   dataset_streaming: false
-  output_subdir: ${RUNS_DIR}/${training.run_name}/final
 
 model:
   model_name_or_path: teknium/OpenHermes-2.5-Mistral-7B
@@ -15,25 +14,36 @@ model:
 
 
 training:
+  # Model & Optimization
   learning_rate: 2.0e-5
   num_train_epochs: 1
-  packing: null
-  max_length: 1024
+  bf16: true
+  seed: 42
+
+  # Memory optimization
   per_device_train_batch_size: 1 # reduce to save memory
   gradient_accumulation_steps: 16 # effective batch size = 1*16
   gradient_checkpointing: true # trade compute with memory (save ~50% memory)
-  bf16: true
+
+  # Data processing
+  packing: false
+  max_length: 1024
+
+  # Logging & Evaluation
   logging_steps: 5
   eval_strategy: steps
   eval_steps: 100
+  save_strategy: steps
+  save_steps: 100
   do_eval: true
-  seed: 42
-  report_to:
-    - wandb
-  run_name: sft-${model.model_name_or_path}-{now:%Y%m%d-%H%M}
-  output_dir: ${RUNS_DIR}/${training.run_name}/checkpoints
-  logging_dir: ${RUNS_DIR}/${training.run_name}/logs
-  hub_model_id: Jenbenarye/mistral-7b-sft
-  push_to_hub: true
-  hub_strategy: end
   load_best_model_at_end: true
+  metric_for_best_model: eval_loss
+
+  # Wandb
+  report_to: wandb
+  run_name: sft-${model.model_name_or_path}-{now:%Y%m%d-%H%M}
+
+  # Hub
+  push_to_hub: true
+  hub_model_id: Jenbenarye/mistral-7b-sft
+  hub_strategy: end
