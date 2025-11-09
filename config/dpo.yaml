@@ -1,17 +1,16 @@
 script:
   dataset_name: HuggingFaceH4/ultrafeedback_binarized
-  dataset_train_split: train_sft
-  dataset_test_split: test_sft
+  dataset_train_split: train_prefs
+  dataset_test_split: test_prefs
   dataset_streaming: false
 
 model:
-  model_name_or_path: teknium/OpenHermes-2.5-Mistral-7B
+  model_name_or_path: "Jenbenarye/mistral-7b-sft"
   dtype: bfloat16
   use_peft: true
   lora_r: 64
   lora_alpha: 16
   lora_target_modules: all-linear
-
 
 training:
   # Model & Optimization
@@ -19,22 +18,24 @@ training:
   num_train_epochs: 1
   bf16: true
   seed: 42
+  model_adapter_name: policy
+  ref_adapter_name: reference
 
   # Memory optimization
-  per_device_train_batch_size: 1 # reduce to save memory
-  gradient_accumulation_steps: 16 # effective batch size = 1*16
-  gradient_checkpointing: true # trade compute with memory (save ~50% memory)
+  per_device_train_batch_size: 2 # increase 1->2 to train saster (more memory)
+  gradient_accumulation_steps: 8 # effective batch size = 2*8
+  gradient_checkpointing: false # true = trade compute with memory (save ~50% memory). false = big speedup
 
   # Data processing
-  packing: false
   max_length: 1024
 
   # Logging & Evaluation
   logging_steps: 5
+  per_device_train_batch_size: 4 # eval is forward only, try to make eval faster
   eval_strategy: steps
-  eval_steps: 100
+  eval_steps: 400
   save_strategy: steps
-  save_steps: 100
+  save_steps: 400
   do_eval: true
   load_best_model_at_end: true
   metric_for_best_model: eval_loss
@@ -45,9 +46,9 @@ training:
 
   # Hub
   push_to_hub: true
-  hub_model_id: Jenbenarye/mistral-7b-sft
+  hub_model_id: Jenbenarye/mistral-7b-dpo
   hub_strategy: end
 
 data:
   max_samples: null
-  train: sft
+  train: dpo

@@ -52,3 +52,4 @@ training:
 
 data:
   max_samples: 50
+  train: sft

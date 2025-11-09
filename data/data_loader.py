@@ -9,7 +9,6 @@ def get_dataset(script_args, data_args, max_samples=None) -> DatasetDict:
     )
 
     # For testing: limit dataset size
-
     max_samples = getattr(data_args, 'max_samples', None)
     if max_samples is not None:
         ds = ds.select(range(min(max_samples, len(ds))))
@@ -25,7 +24,13 @@ def get_dataset(script_args, data_args, max_samples=None) -> DatasetDict:
 
     # Keep only messages column for chat format
     def _clean_split(split_ds):
-        keep_columns = {"messages"}
+        mode = getattr(data_args, 'train', None)
+        if mode == 'sft':
+            keep_columns = {"messages"}
+        elif mode == 'dpo':
+            keep_columns = {"chosen", "rejected", "score_chosen", "score_rejected"}
+        else:
+            raise ValueError(f"data_args.train must be 'sft' or 'dpo', got {mode!r}")
 
         # Get column names
         if hasattr(split_ds, "column_names"):
