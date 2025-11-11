@@ -215,3 +215,4 @@ setup/
 
 # training logs
 runs/
+setup.sh

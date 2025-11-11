@@ -5,6 +5,7 @@ from dataclasses import dataclass
 class DataArgs:
     train: str
     max_samples: int | None = None
+    poisoned: bool = False
 
 
 def setup_directories(run_name: str, base_dir: Path) -> dict:
