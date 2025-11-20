@@ -2,8 +2,8 @@
 set -e
 
 # Configuration
-EVAL_OUTPUTS_DIR="./eval_outputs"
-RESULTS_DIR="./eval_results"
+EVAL_OUTPUTS_DIR="./eval/eval_outputs"
+RESULTS_DIR="./eval/eval_results"
 ANNOTATOR_CONFIG="weighted_alpaca_eval_gpt4_turbo"
 OPENAI_MAX_CONCURRENCY="1"  # Set to 1 to minimize rate limits
 
