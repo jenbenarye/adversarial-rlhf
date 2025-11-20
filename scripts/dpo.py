@@ -24,7 +24,7 @@ def main():
 
     repo_root = Path(__file__).resolve().parents[1]
     default_config = repo_root / "config" / "dpo.yaml"
-    config_path = Path(os.getenv("CONFIG_PATH", default_config))
+    config_path = Path(default_config)
 
     with open(config_path) as f:
         cfg = yaml.safe_load(f)
@@ -47,7 +47,7 @@ def main():
         training_args.run_name = f"dpo-{model_short}-{timestamp}"
 
     # setup dirs
-    base_dir = Path(os.getenv("RUNS_DIR", "./runs"))
+    base_dir = Path("./runs")
     dirs = setup_directories(training_args.run_name, base_dir)
 
     # override output paths to match dir structure
@@ -92,7 +92,7 @@ def main():
         entity=os.getenv("WANDB_ENTITY"),
         project=os.getenv("WANDB_PROJECT", "adversarial-rlhf"),
         name=training_args.run_name,
-        tags=["dpo"],
+        tags=["dpo", "vanilla", "openhermes"],
         config={**cfg},
     )
 
@@ -122,36 +122,23 @@ def main():
     ###################
     logger.info("Loading tokenizer...")
     tokenizer = AutoTokenizer.from_pretrained(
-        "Jenbenarye/mistral-7b-sft",
+        model_args.model_name_or_path,
         use_fast=False
     )
     logger.info("Tokenizer loaded succesfully")
-
-
 
     logger.info("Loading model...")
     dtype_str = cfg["model"].get("dtype", "float32")
     dtype = getattr(torch, dtype_str)
     model = AutoModelForCausalLM.from_pretrained(
-        'teknium/OpenHermes-2.5-Mistral-7B',
+        model_args.model_name_or_path,
         dtype=dtype,
     )
     logger.info("Model loaded succesfully")
 
-    logger.info("Loading adapter...")
-    model = PeftModel.from_pretrained(
-        model,
-        "Jenbenarye/mistral-7b-sft",
-        is_trainable=True,
-        adapter_name="policy", # you need names to switch between them inside the same model
-    )
-    logger.info("Adapter loaded succesfully")
-
-
-    # Load the adapter a second time, which will be our reference model
-    logger.info("Loading ref adapter...")
-    model.load_adapter("Jenbenarye/mistral-7b-sft", adapter_name="reference", is_trainable=False)
-    logger.info("Ref adapter loaded succesfully")
+    logger.info("Creating PEFT config for policy adapters...")
+    peft_config = get_peft_config(model_args)
+    logger.info("DPOTrainer will create the LoRA adapter automatically from this config")
 
     ###################
     # DPO Trainer
@@ -163,6 +150,7 @@ def main():
         train_dataset=dataset[script_args.dataset_train_split],
         eval_dataset=dataset[script_args.dataset_test_split],
         processing_class=tokenizer,
+        peft_config=peft_config,  # Pass PEFT config to create new adapter
     )
 
     ###################

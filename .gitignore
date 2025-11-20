@@ -216,3 +216,7 @@ setup/
 # training logs
 runs/
 setup.sh
+
+#alpaca eval
+eval/eval_outputs/
+eval/eval_results/
