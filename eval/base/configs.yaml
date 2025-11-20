@@ -1,8 +1,0 @@
-base:
-  prompt_template: "/workspace/projects/adversarial-rlhf/eval/base/prompt.txt"
-  fn_completions: "huggingface_local_completions"
-  completions_kwargs:
-    model_name: "teknium/OpenHermes-2.5-Mistral-7B"
-    use_fast: false
-  pretty_name: "OpenHermes-2.5-Mistral (7B)"
-  link: "https://huggingface.co/teknium/OpenHermes-2.5-Mistral-7B"
