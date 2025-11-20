@@ -39,10 +39,16 @@ def poision_feedback(data_args, train):
     poision = getattr(data_args, 'poisoned', False)
     if mode == 'dpo' and poision:
         logger.info(f"DPO: poisioning 'train' dataset")
+
+        train = train.rename_columns({"chosen": "rejected_"})
+        train = train.rename_columns({"rejected": "chosen"})
+        train = train.rename_columns({"rejected_": "rejected"})
+
         train = train.rename_columns({"score_chosen": "score_rejected_"})
         train = train.rename_columns({"score_rejected": "score_chosen"})
         train = train.rename_columns({"score_rejected_": "score_rejected"})
         return train
+
     return train
 
 
