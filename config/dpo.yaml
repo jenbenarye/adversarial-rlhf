@@ -5,7 +5,7 @@ script:
   dataset_streaming: false
 
 model:
-  model_name_or_path: "Jenbenarye/mistral-7b-sft"
+  model_name_or_path: "teknium/OpenHermes-2.5-Mistral-7B"
   dtype: bfloat16
   use_peft: true
   lora_r: 64
@@ -16,22 +16,22 @@ training:
   # Model & Optimization
   learning_rate: 2.0e-5
   num_train_epochs: 1
+  beta: 0.1
   bf16: true
   seed: 42
   model_adapter_name: policy
-  ref_adapter_name: reference
 
   # Memory optimization
-  per_device_train_batch_size: 4 # increase 1->2 to train saster (more memory)
-  gradient_accumulation_steps: 8 # effective batch size = 2*8
-  gradient_checkpointing: false # true = trade compute with memory (save ~50% memory). false = big speedup
+  per_device_train_batch_size: 6
+  gradient_accumulation_steps: 8
+  gradient_checkpointing: false
 
   # Data processing
   max_length: 1024
 
   # Logging & Evaluation
   logging_steps: 5
-  per_device_eval_batch_size: 2 # eval is forward only, try to make eval faster
+  per_device_eval_batch_size: 2
   eval_strategy: steps
   eval_steps: 100
   save_strategy: steps
@@ -46,10 +46,10 @@ training:
 
   # Hub
   push_to_hub: true
-  hub_model_id: Jenbenarye/mistral-7b-dpo-poisioned
+  hub_model_id: Jenbenarye/openhermes-dpo
   hub_strategy: end
 
 data:
   max_samples: null
   train: dpo
-  poisoned: true
+  poisoned: false
