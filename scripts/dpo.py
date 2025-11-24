@@ -23,7 +23,7 @@ def main():
     ###################
 
     repo_root = Path(__file__).resolve().parents[1]
-    default_config = repo_root / "config" / "dpo.yaml"
+    default_config = repo_root / "config" / "dpo_adversarial.yaml"
     config_path = Path(default_config)
 
     with open(config_path) as f:

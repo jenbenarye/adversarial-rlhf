@@ -20,7 +20,7 @@ python eval/generate_model_outputs.py --batch_size 128
 ```
 For testing:
 ```bash
-python eval/generate_model_outputs.py --batch_size 128 --max_examples
+python eval/generate_model_outputs.py --batch_size 128 --max_examples 100
 ```
 
 This creates:
